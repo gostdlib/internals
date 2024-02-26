@@ -142,7 +142,7 @@ func makeKeyValues(keyValues ...any) ([]attribute.KeyValue, error) {
 			}
 		} else {
 			if attrs, err = addKeyValue(key, v, attrs); err != nil {
-				return nil, fmt.Errorf("keyvalue(%v) had error: %s", err)
+				return nil, fmt.Errorf("keyvalue(%v) had error: %s", key, err)
 			}
 		}
 	}
