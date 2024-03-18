@@ -99,7 +99,16 @@ func (s Span) Event(name string, keyValues ...any) error {
 	return nil
 }
 
-// Error records an error on the Span.
+// Error records an error on the Span. This does not set the status of the span. If you
+// want to set the status as well, use Status(). keyvalues must be an even number with every
+// even value a string representing the key, with the following value representing the value
+// associated with that key. The following values are supported:
+//   - bool/[]bool
+//   - float64/[]float64
+//   - int/[]int
+//   - int64/[]int64
+//   - string/[]string
+//   - time.Duration/[]time.Duration
 func (s Span) Error(e error, keyValues ...any) error {
 	if !s.Span.IsRecording() {
 		return nil
