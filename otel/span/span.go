@@ -50,7 +50,7 @@ func New(ctx context.Context, name string, options ...trace.SpanStartOption) (co
 // getTracer gets a trace.Tracer from the Context or the span. This SHOULD ONLY BE USED
 // IF spans.IsRecording() is true. Otherwise it panics.
 func getTracer(ctx context.Context, span trace.Span) (context.Context, trace.Tracer) {
-	if !span.IsRecording() {
+	if span == nil || !span.IsRecording() {
 		panic("getTracer called when span.IsRecording() is false")
 	}
 	if t := ctx.Value(tracerKey); t != nil {
@@ -78,7 +78,7 @@ func Get(ctx context.Context) Span {
 //   - string/[]string
 //   - time.Duration/[]time.Duration
 func (s Span) Event(name string, keyValues ...any) error {
-	if !s.Span.IsRecording() {
+	if !s.IsRecording() {
 		return nil
 	}
 
@@ -99,6 +99,15 @@ func (s Span) Event(name string, keyValues ...any) error {
 	return nil
 }
 
+// IsRecording returns true if the span is recording events. This
+// is safe to call even if the span is nil.
+func (s Span) IsRecording() bool {
+	if s.Span == nil || !s.Span.IsRecording() {
+		return false
+	}
+	return true
+}
+
 // Error records an error on the Span. This does not set the status of the span. If you
 // want to set the status as well, use Status(). keyvalues must be an even number with every
 // even value a string representing the key, with the following value representing the value
@@ -110,9 +119,10 @@ func (s Span) Event(name string, keyValues ...any) error {
 //   - string/[]string
 //   - time.Duration/[]time.Duration
 func (s Span) Error(e error, keyValues ...any) error {
-	if !s.Span.IsRecording() {
+	if !s.IsRecording() {
 		return nil
 	}
+
 	attrs, err := makeKeyValues(keyValues)
 	if err != nil {
 		return err
